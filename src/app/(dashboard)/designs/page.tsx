@@ -1,8 +1,11 @@
-import Link from 'next/link';
+"use client";
+
+import { useState } from 'react';
 import { Plus, Search, Image as ImageIcon, CheckCircle, Clock, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Modal } from '@/components/Modal';
 
-const MOCK_DESIGNS = [
+const INITIAL_DESIGNS = [
   { id: 'DSGN-1001', name: 'Floral Jacquard Motif', status: 'APPROVED', warp: '2/40s Cotton', weft: '10s Viscose', date: '2026-06-15' },
   { id: 'DSGN-1002', name: 'Geometric Pattern 01', status: 'PENDING', warp: '30s Spun', weft: '20s Cotton', date: '2026-06-20' },
   { id: 'DSGN-1003', name: 'Traditional Border 4-inch', status: 'REJECTED', warp: '2/60s PC', weft: '30s Cotton', date: '2026-06-18' },
@@ -15,6 +18,25 @@ const STATUS_ICONS: Record<string, any> = {
 };
 
 export default function DesignsPage() {
+  const [designs, setDesigns] = useState(INITIAL_DESIGNS);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Form State
+  const [name, setName] = useState('');
+  const [warp, setWarp] = useState('');
+  const [weft, setWeft] = useState('');
+
+  const handleUpload = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newId = `DSGN-100${designs.length + 1}`;
+    const date = new Date().toISOString().split('T')[0];
+    setDesigns([{ id: newId, name, status: 'PENDING', warp, weft, date }, ...designs]);
+    setIsModalOpen(false);
+    setName('');
+    setWarp('');
+    setWeft('');
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -22,7 +44,7 @@ export default function DesignsPage() {
           <h2 className="text-2xl font-bold tracking-tight text-gray-900">Design Library</h2>
           <p className="text-sm text-gray-500">Manage textile motifs, weave parameters, and approvals.</p>
         </div>
-        <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
+        <Button onClick={() => setIsModalOpen(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white">
           <Plus className="w-4 h-4 mr-2" /> Upload New Design
         </Button>
       </div>
@@ -43,29 +65,15 @@ export default function DesignsPage() {
                 />
               </div>
             </div>
-            <div>
-              <label className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 block">Status</label>
-              <div className="space-y-2">
-                <label className="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
-                  <input type="checkbox" className="rounded text-indigo-600 focus:ring-indigo-500" defaultChecked />
-                  <span>Pending Approval</span>
-                </label>
-                <label className="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
-                  <input type="checkbox" className="rounded text-indigo-600 focus:ring-indigo-500" defaultChecked />
-                  <span>Approved</span>
-                </label>
-              </div>
-            </div>
           </div>
         </div>
 
         {/* Right side for grid */}
         <div className="md:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {MOCK_DESIGNS.map((design) => (
+          {designs.map((design) => (
             <div key={design.id} className="bg-white rounded-md shadow border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
               <div className="h-40 bg-gray-100 flex items-center justify-center border-b border-gray-200">
                 <ImageIcon className="w-12 h-12 text-gray-300" />
-                {/* Normally an <img /> goes here */}
               </div>
               <div className="p-4">
                 <div className="flex justify-between items-start mb-2">
@@ -79,7 +87,7 @@ export default function DesignsPage() {
                     'PENDING': 'text-amber-700',
                     'APPROVED': 'text-green-700',
                     'REJECTED': 'text-red-700'
-                  }[design.status]}>
+                  }[design.status] || 'text-gray-700'}>
                     {design.status}
                   </span>
                 </div>
@@ -106,6 +114,50 @@ export default function DesignsPage() {
           ))}
         </div>
       </div>
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Upload New Design">
+        <form onSubmit={handleUpload} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Design Name</label>
+            <input 
+              required
+              type="text" 
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-indigo-500" 
+              placeholder="e.g. Modern Stripes"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Warp Count</label>
+              <input 
+                required
+                type="text" 
+                value={warp}
+                onChange={(e) => setWarp(e.target.value)}
+                className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-indigo-500" 
+                placeholder="e.g. 40s Cotton"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Weft Count</label>
+              <input 
+                required
+                type="text" 
+                value={weft}
+                onChange={(e) => setWeft(e.target.value)}
+                className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-indigo-500" 
+                placeholder="e.g. 20s Viscose"
+              />
+            </div>
+          </div>
+          <div className="pt-4 flex justify-end space-x-2">
+            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+            <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white">Upload Design</Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

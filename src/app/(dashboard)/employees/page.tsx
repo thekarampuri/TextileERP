@@ -1,7 +1,11 @@
+"use client";
+
+import { useState } from 'react';
 import { Contact, UserPlus, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Modal } from '@/components/Modal';
 
-const MOCK_EMPLOYEES = [
+const INITIAL_EMPLOYEES = [
   { id: 'EMP-001', name: 'Rajesh Kumar', role: 'Operator', shift: 'Morning', status: 'Present' },
   { id: 'EMP-002', name: 'Anil Sharma', role: 'Operator', shift: 'Morning', status: 'Absent' },
   { id: 'EMP-003', name: 'Suresh Verma', role: 'Supervisor', shift: 'Morning', status: 'Present' },
@@ -9,6 +13,22 @@ const MOCK_EMPLOYEES = [
 ];
 
 export default function EmployeesPage() {
+  const [employees, setEmployees] = useState(INITIAL_EMPLOYEES);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Form State
+  const [name, setName] = useState('');
+  const [role, setRole] = useState('Operator');
+  const [shift, setShift] = useState('Morning');
+
+  const handleAddEmployee = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newId = `EMP-00${employees.length + 1}`;
+    setEmployees([...employees, { id: newId, name, role, shift, status: 'Present' }]);
+    setIsModalOpen(false);
+    setName('');
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -20,7 +40,7 @@ export default function EmployeesPage() {
           <Button variant="outline" className="text-gray-600 bg-white border-gray-300">
             <Clock className="w-4 h-4 mr-2" /> Mark Attendance
           </Button>
-          <Button className="bg-sky-600 hover:bg-sky-700 text-white">
+          <Button onClick={() => setIsModalOpen(true)} className="bg-sky-600 hover:bg-sky-700 text-white">
             <UserPlus className="w-4 h-4 mr-2" /> Add Employee
           </Button>
         </div>
@@ -39,7 +59,7 @@ export default function EmployeesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {MOCK_EMPLOYEES.map((emp) => (
+              {employees.map((emp) => (
                 <tr key={emp.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 font-medium text-gray-900">{emp.id}</td>
                   <td className="px-6 py-4 text-gray-700">{emp.name}</td>
@@ -58,6 +78,52 @@ export default function EmployeesPage() {
           </table>
         </div>
       </div>
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Add New Employee">
+        <form onSubmit={handleAddEmployee} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+            <input 
+              required
+              type="text" 
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-sky-500" 
+              placeholder="e.g. John Doe"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+            <select 
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-sky-500"
+            >
+              <option>Operator</option>
+              <option>Supervisor</option>
+              <option>Designer</option>
+              <option>HR</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Shift</label>
+            <select 
+              value={shift}
+              onChange={(e) => setShift(e.target.value)}
+              className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-sky-500"
+            >
+              <option>Morning</option>
+              <option>Evening</option>
+              <option>Night</option>
+              <option>General</option>
+            </select>
+          </div>
+          <div className="pt-4 flex justify-end space-x-2">
+            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+            <Button type="submit" className="bg-sky-600 hover:bg-sky-700 text-white">Save Employee</Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

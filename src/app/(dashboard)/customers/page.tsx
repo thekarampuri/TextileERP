@@ -1,9 +1,12 @@
+"use client";
+
+import { useState } from 'react';
 import Link from 'next/link';
 import { Plus, Search, MoreVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Modal } from '@/components/Modal';
 
-// Mock Data
-const CUSTOMERS = [
+const INITIAL_CUSTOMERS = [
   { id: 'CUST-001', name: 'Alpha Textiles', phone: '+91 98765 43210', orders: 12, balance: '$4,500' },
   { id: 'CUST-002', name: 'Beta Garments', phone: '+91 91234 56789', orders: 5, balance: '$0' },
   { id: 'CUST-003', name: 'Gamma Fabrics', phone: '+91 99887 76655', orders: 28, balance: '$12,350' },
@@ -11,6 +14,22 @@ const CUSTOMERS = [
 ];
 
 export default function CustomersPage() {
+  const [customers, setCustomers] = useState(INITIAL_CUSTOMERS);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Form State
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+
+  const handleAddCustomer = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newId = `CUST-00${customers.length + 1}`;
+    setCustomers([...customers, { id: newId, name, phone, orders: 0, balance: '$0' }]);
+    setIsModalOpen(false);
+    setName('');
+    setPhone('');
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -18,7 +37,7 @@ export default function CustomersPage() {
           <h2 className="text-2xl font-bold tracking-tight text-gray-900">Customers</h2>
           <p className="text-sm text-gray-500">Manage your clients and view their order history.</p>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+        <Button onClick={() => setIsModalOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white">
           <Plus className="w-4 h-4 mr-2" /> Add Customer
         </Button>
       </div>
@@ -46,7 +65,7 @@ export default function CustomersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {CUSTOMERS.map((customer) => (
+              {customers.map((customer) => (
                 <tr key={customer.id} className="hover:bg-gray-50 transition-colors group">
                   <td className="px-6 py-4 font-medium text-gray-900">
                     <Link href={`/customers/${customer.id}`} className="hover:text-blue-600 hover:underline">
@@ -74,9 +93,40 @@ export default function CustomersPage() {
           </table>
         </div>
         <div className="p-4 border-t border-gray-200 text-xs text-gray-500 bg-gray-50 rounded-b-md flex justify-between items-center">
-          <span>Showing 1 to 4 of 4 customers</span>
+          <span>Showing 1 to {customers.length} of {customers.length} customers</span>
         </div>
       </div>
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Add New Customer">
+        <form onSubmit={handleAddCustomer} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+            <input 
+              required
+              type="text" 
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500" 
+              placeholder="e.g. Omega Fabrics"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+            <input 
+              required
+              type="text" 
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500" 
+              placeholder="e.g. +91 90000 00000"
+            />
+          </div>
+          <div className="pt-4 flex justify-end space-x-2">
+            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+            <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white">Save Customer</Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Plus, MoreHorizontal, Clock, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Modal } from '@/components/Modal';
 
 const STAGES = [
   { id: 'WARPING', name: 'Warping' },
@@ -11,7 +12,7 @@ const STAGES = [
   { id: 'PACKING', name: 'Packing' },
 ];
 
-const MOCK_JOBS = [
+const INITIAL_JOBS = [
   { id: 'JOB-101', orderItem: 'ORD-1001-A', stage: 'WARPING', machine: 'Warp-01', operator: 'Rajesh', progress: 80, issue: false },
   { id: 'JOB-102', orderItem: 'ORD-1002-A', stage: 'WEAVING', machine: 'Loom-14', operator: 'Kumar', progress: 45, issue: false },
   { id: 'JOB-103', orderItem: 'ORD-1002-B', stage: 'WEAVING', machine: 'Loom-15', operator: 'Suresh', progress: 10, issue: true },
@@ -20,7 +21,31 @@ const MOCK_JOBS = [
 ];
 
 export default function ProductionBoardPage() {
-  const [jobs, setJobs] = useState(MOCK_JOBS);
+  const [jobs, setJobs] = useState(INITIAL_JOBS);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Form State
+  const [orderItem, setOrderItem] = useState('');
+  const [machine, setMachine] = useState('');
+  const [operator, setOperator] = useState('');
+
+  const handleCreateJob = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newId = `JOB-${100 + jobs.length + 1}`;
+    setJobs([...jobs, { 
+      id: newId, 
+      orderItem, 
+      stage: 'WARPING', 
+      machine, 
+      operator, 
+      progress: 0, 
+      issue: false 
+    }]);
+    setIsModalOpen(false);
+    setOrderItem('');
+    setMachine('');
+    setOperator('');
+  };
 
   return (
     <div className="h-[calc(100vh-6rem)] flex flex-col space-y-4">
@@ -33,7 +58,7 @@ export default function ProductionBoardPage() {
           <Button variant="outline" className="text-gray-600 bg-white border-gray-300">
             Export Report
           </Button>
-          <Button className="bg-teal-600 hover:bg-teal-700 text-white">
+          <Button onClick={() => setIsModalOpen(true)} className="bg-teal-600 hover:bg-teal-700 text-white">
             <Plus className="w-4 h-4 mr-2" /> New Job
           </Button>
         </div>
@@ -65,7 +90,7 @@ export default function ProductionBoardPage() {
                       
                       <div className="flex justify-between items-start mb-2">
                         <span className="text-xs font-bold text-gray-500">{job.id}</span>
-                        {job.issue && <AlertTriangle className="w-4 h-4 text-amber-500" />}
+                        {job.issue && <AlertTriangle className="w-4 h-4 text-amber-500" title="Issue reported" />}
                       </div>
                       
                       <h4 className="text-sm font-semibold text-gray-900 mb-1">{job.orderItem}</h4>
@@ -109,6 +134,48 @@ export default function ProductionBoardPage() {
 
         </div>
       </div>
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create New Job">
+        <form onSubmit={handleCreateJob} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Order Item Ref</label>
+            <input 
+              required
+              type="text" 
+              value={orderItem}
+              onChange={(e) => setOrderItem(e.target.value)}
+              className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-teal-500" 
+              placeholder="e.g. ORD-1005-A"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Assign Machine</label>
+            <input 
+              required
+              type="text" 
+              value={machine}
+              onChange={(e) => setMachine(e.target.value)}
+              className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-teal-500" 
+              placeholder="e.g. Warp-02"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Assign Operator</label>
+            <input 
+              required
+              type="text" 
+              value={operator}
+              onChange={(e) => setOperator(e.target.value)}
+              className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-teal-500" 
+              placeholder="e.g. Manish"
+            />
+          </div>
+          <div className="pt-4 flex justify-end space-x-2">
+            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+            <Button type="submit" className="bg-teal-600 hover:bg-teal-700 text-white">Create Job</Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

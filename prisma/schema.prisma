@@ -10,5 +10,199 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Database models have been temporarily removed 
-// for frontend-first development to prevent DB errors.
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(EMPLOYEE)
+  shift     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  productionLogs ProductionLog[]
+}
+
+enum Role {
+  OWNER
+  MANAGER
+  HR
+  DESIGNER
+  OPERATOR
+  QC
+  EMPLOYEE
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  email     String?
+  address   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders    Order[]
+  payments  Payment[]
+}
+
+model Order {
+  id         String   @id @default(cuid())
+  customerId String
+  status     OrderStatus @default(PENDING)
+  totalValue Float    @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  customer   Customer @relation(fields: [customerId], references: [id])
+  items      OrderItem[]
+  dispatches Dispatch[]
+}
+
+enum OrderStatus {
+  PENDING
+  IN_PRODUCTION
+  COMPLETED
+  DISPATCHED
+  CANCELLED
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  orderId    String
+  designId   String
+  quantity   Int
+  unitPrice  Float
+  status     ItemStatus @default(PENDING)
+
+  order      Order    @relation(fields: [orderId], references: [id])
+  design     Design   @relation(fields: [designId], references: [id])
+  job        Job?
+}
+
+enum ItemStatus {
+  PENDING
+  WARPING
+  WEAVING
+  FINISHING
+  PACKING
+  READY_TO_DISPATCH
+  DISPATCHED
+}
+
+model Design {
+  id          String   @id @default(cuid())
+  name        String
+  warpCount   String
+  weftCount   String
+  picks       Int?
+  ends        Int?
+  status      ApprovalStatus @default(PENDING)
+  imageData   String?  // Base64 string for motif images
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  orderItems  OrderItem[]
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Machine {
+  id          String   @id @default(cuid())
+  name        String
+  type        MachineType
+  status      MachineStatus @default(IDLE)
+
+  currentJobs Job[]
+}
+
+enum MachineType {
+  WARPING
+  WEAVING
+  FINISHING
+  PACKING
+}
+
+enum MachineStatus {
+  RUNNING
+  IDLE
+  MAINTENANCE
+}
+
+model Job {
+  id          String   @id @default(cuid())
+  orderItemId String   @unique
+  machineId   String?
+  stage       MachineType
+  progress    Int      @default(0)
+  issue       Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  orderItem   OrderItem @relation(fields: [orderItemId], references: [id])
+  machine     Machine?  @relation(fields: [machineId], references: [id])
+  logs        ProductionLog[]
+}
+
+model ProductionLog {
+  id        String   @id @default(cuid())
+  jobId     String
+  userId    String
+  meters    Float    @default(0)
+  hours     Float    @default(0)
+  downtime  Int      @default(0)
+  issueNote String?
+  date      DateTime @default(now())
+
+  job       Job      @relation(fields: [jobId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model InventoryItem {
+  id          String   @id @default(cuid())
+  name        String
+  type        InventoryType
+  stock       Float    @default(0)
+  unit        String
+  reorderLvl  Float    @default(0)
+  updatedAt   DateTime @updatedAt
+}
+
+enum InventoryType {
+  RAW_MATERIAL
+  FINISHED_GOOD
+  CHEMICAL
+}
+
+model Dispatch {
+  id          String   @id @default(cuid())
+  orderId     String
+  transporter String
+  vehicleNo   String
+  status      DispatchStatus @default(SCHEDULED)
+  date        DateTime @default(now())
+
+  order       Order    @relation(fields: [orderId], references: [id])
+}
+
+enum DispatchStatus {
+  SCHEDULED
+  IN_TRANSIT
+  DELIVERED
+}
+
+model Payment {
+  id          String   @id @default(cuid())
+  customerId  String
+  amount      Float
+  date        DateTime @default(now())
+  screenshot  String?  // Base64 string for payment proof
+  notes       String?
+
+  customer    Customer @relation(fields: [customerId], references: [id])
+}

@@ -39,10 +39,10 @@ export default function SidebarNav({ userRoles }: { userRoles: string[] }) {
           <Link 
             key={route.name} 
             href={route.href}
-            className={`flex items-center px-6 py-3 text-sm font-medium transition-colors ${
+            className={`flex items-center px-6 py-3 text-sm font-medium transition-all duration-200 ease-in-out ${
               isActive 
-                ? 'bg-gray-950 text-white border-l-4 border-blue-500 pl-5' // Darker background & blue line for active
-                : 'text-gray-300 hover:bg-gray-800 hover:text-white border-l-4 border-transparent'
+                ? 'bg-gray-900 text-white border-l-4 border-blue-500 pl-5 shadow-inner' // Darker background & blue line for active
+                : 'text-gray-400 hover:bg-gray-800/80 hover:text-white border-l-4 border-transparent hover:pl-7'
             }`}
           >
             <Icon className={`w-5 h-5 mr-3 ${isActive ? 'text-blue-400' : 'text-gray-400'}`} />

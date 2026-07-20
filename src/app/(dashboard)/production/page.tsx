@@ -74,23 +74,23 @@ export default function ProductionBoardPage() {
             return (
               <div key={stage.id} className="w-80 flex flex-col bg-gray-100 rounded-lg shadow-sm border border-gray-200">
                 {/* Column Header */}
-                <div className="p-3 border-b border-gray-200 bg-gray-50 rounded-t-lg flex justify-between items-center">
-                  <h3 className="font-semibold text-gray-700 uppercase text-xs tracking-wider">
-                    {stage.name} <span className="ml-2 bg-gray-200 text-gray-600 py-0.5 px-2 rounded-full">{stageJobs.length}</span>
+                <div className="p-3.5 border-b border-gray-200 bg-gray-50/80 rounded-t-lg flex justify-between items-center backdrop-blur-sm">
+                  <h3 className="font-bold text-gray-700 uppercase text-xs tracking-wider flex items-center">
+                    {stage.name} <span className="ml-2 bg-indigo-100 text-indigo-700 py-0.5 px-2 rounded-full text-[10px] font-bold">{stageJobs.length}</span>
                   </h3>
-                  <button className="text-gray-400 hover:text-gray-600">
+                  <button className="text-gray-400 hover:text-gray-600 transition-colors bg-white p-1 rounded hover:bg-gray-200">
                     <MoreHorizontal className="w-4 h-4" />
                   </button>
                 </div>
 
                 {/* Cards Container */}
-                <div className="flex-1 overflow-y-auto p-3 space-y-3">
+                <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-gray-100/50">
                   {stageJobs.map(job => (
-                    <div key={job.id} className="bg-white p-4 rounded-md shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer border-l-4 border-l-teal-500">
+                    <div key={job.id} className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md border border-gray-200 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer border-l-4 border-l-teal-500 group">
                       
-                      <div className="flex justify-between items-start mb-2">
-                        <span className="text-xs font-bold text-gray-500">{job.id}</span>
-                        {job.issue && <AlertTriangle className="w-4 h-4 text-amber-500" title="Issue reported" />}
+                      <div className="flex justify-between items-start mb-2.5">
+                        <span className="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded text-[10px] uppercase tracking-wider">{job.id}</span>
+                        {job.issue && <AlertTriangle className="w-4 h-4 text-amber-500 animate-pulse" title="Issue reported" />}
                       </div>
                       
                       <h4 className="text-sm font-semibold text-gray-900 mb-1">{job.orderItem}</h4>
@@ -106,14 +106,14 @@ export default function ProductionBoardPage() {
                         </div>
                       </div>
 
-                      <div className="mt-4">
-                        <div className="flex justify-between text-xs mb-1">
+                      <div className="mt-4 bg-gray-50 p-2.5 rounded-lg border border-gray-100">
+                        <div className="flex justify-between text-[11px] mb-1.5 uppercase font-medium">
                           <span className="text-gray-500">Progress</span>
-                          <span className="font-medium">{job.progress}%</span>
+                          <span className={job.issue ? "text-amber-600" : "text-teal-600"}>{job.progress}%</span>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-1.5">
+                        <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
                           <div 
-                            className={`h-1.5 rounded-full ${job.issue ? 'bg-amber-500' : 'bg-teal-500'}`} 
+                            className={`h-full rounded-full transition-all duration-500 ease-in-out ${job.issue ? 'bg-amber-500' : 'bg-teal-500'}`} 
                             style={{ width: `${job.progress}%` }}
                           ></div>
                         </div>

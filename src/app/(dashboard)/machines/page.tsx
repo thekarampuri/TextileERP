@@ -51,47 +51,80 @@ export default function MachinesPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white p-4 rounded-md shadow-sm border border-gray-200">
-          <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Total Machines</h4>
-          <p className="text-2xl font-bold text-gray-900">{machines.length}</p>
+        <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between hover:shadow-md transition-shadow">
+          <div>
+            <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Total Machines</h4>
+            <p className="text-3xl font-bold text-gray-900">{machines.length}</p>
+          </div>
+          <div className="p-3 bg-indigo-50 rounded-full">
+            <Settings2 className="w-6 h-6 text-indigo-600" />
+          </div>
         </div>
-        <div className="bg-white p-4 rounded-md shadow-sm border border-gray-200 border-l-4 border-l-green-500">
-          <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Running</h4>
-          <p className="text-2xl font-bold text-green-700">{runningCount}</p>
+        <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200 border-l-4 border-l-emerald-500 flex items-center justify-between hover:shadow-md transition-shadow">
+          <div>
+            <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Running</h4>
+            <p className="text-3xl font-bold text-emerald-700">{runningCount}</p>
+          </div>
+          <div className="p-3 bg-emerald-50 rounded-full">
+            <PlayCircle className="w-6 h-6 text-emerald-600" />
+          </div>
         </div>
-        <div className="bg-white p-4 rounded-md shadow-sm border border-gray-200 border-l-4 border-l-gray-400">
-          <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Idle</h4>
-          <p className="text-2xl font-bold text-gray-700">{idleCount}</p>
+        <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200 border-l-4 border-l-slate-400 flex items-center justify-between hover:shadow-md transition-shadow">
+          <div>
+            <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Idle</h4>
+            <p className="text-3xl font-bold text-slate-700">{idleCount}</p>
+          </div>
+          <div className="p-3 bg-slate-50 rounded-full">
+            <StopCircle className="w-6 h-6 text-slate-500" />
+          </div>
         </div>
-        <div className="bg-white p-4 rounded-md shadow-sm border border-gray-200 border-l-4 border-l-red-500">
-          <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Maintenance</h4>
-          <p className="text-2xl font-bold text-red-700">{maintCount}</p>
+        <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200 border-l-4 border-l-rose-500 flex items-center justify-between hover:shadow-md transition-shadow">
+          <div>
+            <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Maintenance</h4>
+            <p className="text-3xl font-bold text-rose-700">{maintCount}</p>
+          </div>
+          <div className="p-3 bg-rose-50 rounded-full">
+            <Wrench className="w-6 h-6 text-rose-600" />
+          </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {machines.map((machine) => (
-          <div key={machine.id} className="bg-white rounded-md shadow border border-gray-200 overflow-hidden transition-all">
-            <div className={`p-4 border-b flex justify-between items-center ${machine.status === 'RUNNING' ? 'border-green-100 bg-green-50/30' : 'border-gray-100'}`}>
+          <div key={machine.id} className="bg-white rounded-xl shadow-sm hover:shadow-lg hover:-translate-y-1 border border-gray-200 overflow-hidden transition-all duration-200 flex flex-col">
+            <div className={`p-5 border-b flex justify-between items-center ${
+              machine.status === 'RUNNING' ? 'border-emerald-100 bg-emerald-50/50' : 
+              machine.status === 'MAINTENANCE' ? 'border-rose-100 bg-rose-50/50' : 'border-gray-100 bg-gray-50/50'
+            }`}>
               <div>
                 <h3 className="font-semibold text-gray-900">{machine.name}</h3>
-                <span className="text-xs text-gray-500">{machine.type}</span>
+                <span className="text-xs font-medium text-gray-500 bg-white/60 px-2 py-0.5 rounded-full mt-1 inline-block border border-gray-200/60">{machine.type}</span>
               </div>
-              <div className="flex items-center space-x-1">
-                {machine.status === 'RUNNING' && <PlayCircle className="w-5 h-5 text-green-500" />}
-                {machine.status === 'IDLE' && <StopCircle className="w-5 h-5 text-gray-400" />}
-                {machine.status === 'MAINTENANCE' && <Wrench className="w-5 h-5 text-red-500" />}
+              <div className="flex items-center space-x-1 bg-white p-1.5 rounded-full shadow-sm">
+                {machine.status === 'RUNNING' && <PlayCircle className="w-5 h-5 text-emerald-500" />}
+                {machine.status === 'IDLE' && <StopCircle className="w-5 h-5 text-slate-400" />}
+                {machine.status === 'MAINTENANCE' && <Wrench className="w-5 h-5 text-rose-500" />}
               </div>
             </div>
             
-            <div className="p-4 bg-gray-50 space-y-3">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Current Job</span>
-                <span className="font-medium text-gray-900">{machine.currentJob}</span>
+            <div className="p-5 flex-1 space-y-4">
+              <div className="flex justify-between items-center text-sm bg-gray-50 p-3 rounded-lg border border-gray-100">
+                <span className="text-gray-500 font-medium">Current Job</span>
+                <span className={`font-semibold ${machine.currentJob !== 'None' ? 'text-indigo-600' : 'text-gray-400'}`}>
+                  {machine.currentJob}
+                </span>
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Weekly Utilization</span>
-                <span className="font-medium text-indigo-600">{machine.utilization}</span>
+              <div>
+                <div className="flex justify-between text-sm mb-1.5">
+                  <span className="text-gray-500 font-medium">Weekly Utilization</span>
+                  <span className="font-semibold text-gray-900">{machine.utilization}</span>
+                </div>
+                <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden border border-gray-200/50">
+                  <div 
+                    className="h-full bg-indigo-500 rounded-full transition-all duration-500" 
+                    style={{ width: machine.utilization }}
+                  />
+                </div>
               </div>
             </div>
             
